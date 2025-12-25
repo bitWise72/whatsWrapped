@@ -148,12 +148,16 @@ export function calculateGroupStats(messages: ParsedMessage[]): GroupStats {
   // Chaos spikes (days with unusually high activity)
   const dateCounts: Record<string, number> = {};
   for (const msg of nonSystemMessages) {
-    const date = new Date(msg.timestamp).toISOString().split("T")[0];
+    const msgDate = new Date(msg.timestamp);
+    // Skip invalid timestamps
+    if (isNaN(msgDate.getTime())) continue;
+    const date = msgDate.toISOString().split("T")[0];
     dateCounts[date] = (dateCounts[date] || 0) + 1;
   }
-  const avgPerDay =
-    Object.values(dateCounts).reduce((a, b) => a + b, 0) /
-    Object.keys(dateCounts).length;
+  const dateCountValues = Object.values(dateCounts);
+  const avgPerDay = dateCountValues.length > 0
+    ? dateCountValues.reduce((a, b) => a + b, 0) / dateCountValues.length
+    : 0;
   const chaosSpikes = Object.entries(dateCounts)
     .filter(([, count]) => count > avgPerDay * 2)
     .map(([date, count]) => ({ date, count }))

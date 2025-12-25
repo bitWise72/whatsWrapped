@@ -1,8 +1,19 @@
 // Narrative Template Packs - No LLM required
 import { Template, NarrativeContext, ReportCard, IntentType } from "./types";
 
-function formatDate(isoString: string): string {
-  return new Date(isoString).toLocaleDateString("en-US", {
+function formatDate(dateString: string): string {
+  if (!dateString || dateString === "N/A") {
+    return "Unknown Date";
+  }
+  
+  const date = new Date(dateString);
+  
+  // Check if the date is valid
+  if (isNaN(date.getTime())) {
+    return "Unknown Date";
+  }
+  
+  return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric",
