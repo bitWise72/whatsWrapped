@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, Zap, Heart, Briefcase, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { parseWhatsAppChat, validateChatFile } from "@/lib/parser";
+import { parseWhatsAppChat, validateChatFile, extractChatContext } from "@/lib/parser";
 import { generateNarrativeContext } from "@/lib/analytics";
 import { StoryViewer } from "@/components/StoryViewer";
 import { IntentType, NarrativeContext, AIGeneratedSlides } from "@/lib/types";
@@ -46,6 +46,7 @@ export default function Index() {
   const [showStory, setShowStory] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [aiSlides, setAiSlides] = useState<AIGeneratedSlides | null>(null);
+  const [chatContext, setChatContext] = useState<ReturnType<typeof extractChatContext> | null>(null);
 
   const processFile = useCallback(async (file: File) => {
     setIsLoading(true);
@@ -68,7 +69,9 @@ export default function Index() {
       }
 
       const context = generateNarrativeContext(messages);
+      const extractedChatContext = extractChatContext(messages);
       setNarrativeContext(context);
+      setChatContext(extractedChatContext);
 
       toast.success(`Analyzed ${messages.length.toLocaleString()} messages from ${context.participantCount} participants!`);
     } catch (error) {
@@ -118,7 +121,7 @@ export default function Index() {
       setIsGeneratingAI(true);
       try {
         const { data, error } = await supabase.functions.invoke('generate-wrapped', {
-          body: { narrativeContext },
+          body: { narrativeContext, chatContext },
         });
 
         if (error) {
