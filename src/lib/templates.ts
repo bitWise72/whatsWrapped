@@ -56,7 +56,11 @@ const roastTemplate: Template = {
 
     timeline: (ctx) => {
       const chaosCount = ctx.groupStats.chaosSpikes[0]?.count || 0;
-      return `Peak chaos: ${formatDate(ctx.chaosDay)} with ${chaosCount} messages. Y'all really had nothing else going on that day, huh?`;
+      const formattedDate = formatDate(ctx.chaosDay);
+      if (formattedDate === "Unknown Date" || chaosCount === 0) {
+        return `No major chaos spikes detected. Either y'all are boring, or you spread the madness evenly.`;
+      }
+      return `Peak chaos: ${formattedDate} with ${chaosCount} messages. Y'all really had nothing else going on that day, huh?`;
     },
 
     nightOwl: (ctx) => {
@@ -144,7 +148,11 @@ const corporateTemplate: Template = {
 
     timeline: (ctx) => {
       const chaosCount = ctx.groupStats.chaosSpikes[0]?.count || 0;
-      return `Peak synergy achieved on ${formatDate(ctx.chaosDay)}: ${chaosCount} messages. The team really leaned in that day.`;
+      const formattedDate = formatDate(ctx.chaosDay);
+      if (formattedDate === "Unknown Date" || chaosCount === 0) {
+        return `Engagement metrics show consistent distribution across all periods. No peak synergy events identified.`;
+      }
+      return `Peak synergy achieved on ${formattedDate}: ${chaosCount} messages. The team really leaned in that day.`;
     },
 
     nightOwl: (ctx) => {
@@ -208,7 +216,11 @@ const wholesomeTemplate: Template = {
 
     timeline: (ctx) => {
       const chaosCount = ctx.groupStats.chaosSpikes[0]?.count || 0;
-      return `Your biggest day was ${formatDate(ctx.chaosDay)} with ${chaosCount} messages. Must have been something special! ✨`;
+      const formattedDate = formatDate(ctx.chaosDay);
+      if (formattedDate === "Unknown Date" || chaosCount === 0) {
+        return `Every day with you all is special. The joy is spread evenly throughout! ✨`;
+      }
+      return `Your biggest day was ${formattedDate} with ${chaosCount} messages. Must have been something special! ✨`;
     },
 
     nightOwl: (ctx) => {
