@@ -1,15 +1,23 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, Zap, Heart, Briefcase, MessageCircle } from "lucide-react";
+import { Upload, Zap, Heart, Briefcase, MessageCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { parseWhatsAppChat, validateChatFile } from "@/lib/parser";
 import { generateNarrativeContext } from "@/lib/analytics";
 import { StoryViewer } from "@/components/StoryViewer";
-import { IntentType, NarrativeContext } from "@/lib/types";
+import { IntentType, NarrativeContext, AIGeneratedSlides } from "@/lib/types";
 import { toast } from "sonner";
 import { GlitchText } from "@/components/ui/GlitchText";
+import { supabase } from "@/integrations/supabase/client";
 
-const intents: { id: IntentType; label: string; icon: React.ReactNode; description: string }[] = [
+const intents: { id: IntentType; label: string; icon: React.ReactNode; description: string; highlighted?: boolean }[] = [
+  {
+    id: "ai",
+    label: "AI Powered ✨",
+    icon: <Sparkles className="w-5 h-5" />,
+    description: "Custom AI-generated content",
+    highlighted: true,
+  },
   {
     id: "roast",
     label: "Roast Mode",
@@ -32,10 +40,12 @@ const intents: { id: IntentType; label: string; icon: React.ReactNode; descripti
 
 export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
   const [narrativeContext, setNarrativeContext] = useState<NarrativeContext | null>(null);
-  const [selectedIntent, setSelectedIntent] = useState<IntentType>("roast");
+  const [selectedIntent, setSelectedIntent] = useState<IntentType>("ai");
   const [showStory, setShowStory] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [aiSlides, setAiSlides] = useState<AIGeneratedSlides | null>(null);
 
   const processFile = useCallback(async (file: File) => {
     setIsLoading(true);
@@ -100,15 +110,41 @@ export default function Index() {
     setIsDragging(false);
   }, []);
 
-  const handleStartStory = () => {
-    if (narrativeContext) {
-      setShowStory(true);
+  const handleStartStory = async () => {
+    if (!narrativeContext) return;
+
+    // If AI intent selected, call edge function first
+    if (selectedIntent === "ai") {
+      setIsGeneratingAI(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('generate-wrapped', {
+          body: { narrativeContext },
+        });
+
+        if (error) {
+          console.error("AI generation error:", error);
+          toast.error("AI generation failed, using fallback content");
+          // Fallback to roast template
+          setSelectedIntent("roast");
+        } else if (data?.slides) {
+          setAiSlides(data.slides);
+        }
+      } catch (err) {
+        console.error("Edge function error:", err);
+        toast.error("AI generation failed, using fallback content");
+        setSelectedIntent("roast");
+      } finally {
+        setIsGeneratingAI(false);
+      }
     }
+
+    setShowStory(true);
   };
 
   const handleRestart = () => {
     setShowStory(false);
     setNarrativeContext(null);
+    setAiSlides(null);
   };
 
   // Show story viewer when ready
@@ -118,6 +154,7 @@ export default function Index() {
         context={narrativeContext}
         intent={selectedIntent}
         onRestart={handleRestart}
+        aiSlides={aiSlides}
       />
     );
   }
@@ -278,18 +315,32 @@ export default function Index() {
                         key={intent.id}
                         onClick={() => setSelectedIntent(intent.id)}
                         className={`
-                          flex items-center gap-4 p-4 rounded-xl border transition-all text-left
+                          flex items-center gap-4 p-4 rounded-xl border transition-all text-left relative overflow-hidden
                           ${selectedIntent === intent.id 
-                            ? "border-primary bg-primary/10" 
-                            : "border-border hover:border-primary/50"
+                            ? intent.highlighted 
+                              ? "border-primary bg-gradient-to-r from-primary/20 to-secondary/20 ring-2 ring-primary/50"
+                              : "border-primary bg-primary/10" 
+                            : intent.highlighted
+                              ? "border-primary/50 bg-gradient-to-r from-primary/5 to-secondary/5 hover:from-primary/10 hover:to-secondary/10"
+                              : "border-border hover:border-primary/50"
                           }
                         `}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
+                        {intent.highlighted && (
+                          <div className="absolute top-2 right-2 text-xs font-mono bg-primary/20 text-primary px-2 py-0.5 rounded-full">
+                            NEW
+                          </div>
+                        )}
                         <div className={`
                           w-12 h-12 rounded-full flex items-center justify-center
-                          ${selectedIntent === intent.id ? "gradient-primary" : "bg-muted"}
+                          ${selectedIntent === intent.id 
+                            ? "gradient-primary" 
+                            : intent.highlighted 
+                              ? "bg-gradient-to-br from-primary/30 to-secondary/30" 
+                              : "bg-muted"
+                          }
                         `}>
                           {intent.icon}
                         </div>
@@ -305,9 +356,21 @@ export default function Index() {
                 <Button
                   size="lg"
                   onClick={handleStartStory}
+                  disabled={isGeneratingAI}
                   className="w-full gradient-primary border-none text-lg h-14"
                 >
-                  Generate My Wrapped ✨
+                  {isGeneratingAI ? (
+                    <span className="flex items-center gap-2">
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                        className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
+                      />
+                      AI is cooking...
+                    </span>
+                  ) : (
+                    "Generate My Wrapped ✨"
+                  )}
                 </Button>
 
                 <button

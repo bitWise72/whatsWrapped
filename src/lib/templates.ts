@@ -238,7 +238,16 @@ const wholesomeTemplate: Template = {
   },
 };
 
+// AI intent doesn't use templates - it generates content via edge function
+// But we need a placeholder for the type system
+const aiPlaceholder: Template = {
+  id: "ai" as IntentType,
+  tone: "AI-generated custom content",
+  slides: roastTemplate.slides, // fallback to roast if AI fails
+};
+
 export const templates: Record<IntentType, Template> = {
+  ai: aiPlaceholder,
   roast: roastTemplate,
   corporate: corporateTemplate,
   wholesome: wholesomeTemplate,

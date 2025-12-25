@@ -52,7 +52,17 @@ export interface ReportCard {
   groupName: string;
 }
 
-export type IntentType = "roast" | "corporate" | "wholesome";
+export type IntentType = "ai" | "roast" | "corporate" | "wholesome";
+
+export interface AIGeneratedSlides {
+  intro: string;
+  yapper: string;
+  timeline: string;
+  nightOwl: string;
+  drama: string;
+  finalRoast: string;
+  reportCard: ReportCard;
+}
 
 export interface TemplateSlides {
   intro: (ctx: NarrativeContext) => string;

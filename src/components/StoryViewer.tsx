@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { NarrativeContext, IntentType, ReportCard } from "@/lib/types";
+import { NarrativeContext, IntentType, ReportCard, AIGeneratedSlides } from "@/lib/types";
 import { getTemplate } from "@/lib/templates";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { IntroSlide } from "@/components/slides/IntroSlide";
@@ -15,6 +15,7 @@ interface StoryViewerProps {
   context: NarrativeContext;
   intent: IntentType;
   onRestart: () => void;
+  aiSlides?: AIGeneratedSlides | null;
 }
 
 type SlideType =
@@ -26,20 +27,30 @@ type SlideType =
   | { type: "roast"; text: string }
   | { type: "reportcard"; reportCard: ReportCard };
 
-export function StoryViewer({ context, intent, onRestart }: StoryViewerProps) {
+export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const template = getTemplate(intent);
+  const template = getTemplate(intent === "ai" ? "roast" : intent); // fallback template for AI
 
-  // Generate all slides
-  const slides: SlideType[] = [
-    { type: "intro", text: template.slides.intro(context) },
-    { type: "yapper", text: template.slides.yapper(context) },
-    { type: "timeline", text: template.slides.timeline(context) },
-    { type: "nightowl", text: template.slides.nightOwl(context) },
-    { type: "drama", text: template.slides.drama(context) },
-    { type: "roast", text: template.slides.finalRoast(context) },
-    { type: "reportcard", reportCard: template.slides.reportCard(context) },
-  ];
+  // Generate slides - use AI content if available, otherwise use template
+  const slides: SlideType[] = aiSlides
+    ? [
+        { type: "intro", text: aiSlides.intro },
+        { type: "yapper", text: aiSlides.yapper },
+        { type: "timeline", text: aiSlides.timeline },
+        { type: "nightowl", text: aiSlides.nightOwl },
+        { type: "drama", text: aiSlides.drama },
+        { type: "roast", text: aiSlides.finalRoast },
+        { type: "reportcard", reportCard: aiSlides.reportCard },
+      ]
+    : [
+        { type: "intro", text: template.slides.intro(context) },
+        { type: "yapper", text: template.slides.yapper(context) },
+        { type: "timeline", text: template.slides.timeline(context) },
+        { type: "nightowl", text: template.slides.nightOwl(context) },
+        { type: "drama", text: template.slides.drama(context) },
+        { type: "roast", text: template.slides.finalRoast(context) },
+        { type: "reportcard", reportCard: template.slides.reportCard(context) },
+      ];
 
   const goToNext = useCallback(() => {
     if (currentSlide < slides.length - 1) {
@@ -137,7 +148,7 @@ export function StoryViewer({ context, intent, onRestart }: StoryViewerProps) {
           <RoastSlide
             title="Final Verdict"
             text={slide.text}
-            emoji={intent === "wholesome" ? "💚" : intent === "corporate" ? "📊" : "🔥"}
+            emoji={intent === "ai" ? "🤖" : intent === "wholesome" ? "💚" : intent === "corporate" ? "📊" : "🔥"}
           />
         );
       case "reportcard":
