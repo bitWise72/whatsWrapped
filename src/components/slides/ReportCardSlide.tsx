@@ -74,7 +74,7 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
           animate={{ y: 0, opacity: 1, rotateX: 0 }}
           transition={{ duration: 0.8 }}
           className="bg-card border border-border rounded-2xl p-8 shadow-2xl relative"
-          style={{ aspectRatio: "9/16" }}
+          style={{ aspectRatio: "9/16", paddingRight: "180px" }}
         >
           {/* Header */}
           <div className="text-center mb-8">
@@ -147,8 +147,8 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
             <p className="text-xs text-muted-foreground">WhatsApp Wrapped</p>
           </motion.div>
 
-          {/* QR overlay inside the card so exports include it */}
-          <div className="absolute right-4 bottom-6 z-20 flex flex-col items-center gap-2">
+          {/* QR overlay inside the card so exports include it (moved to top-right) */}
+          <div className="absolute right-4 top-6 z-20 flex flex-col items-center gap-2">
             <div className="bg-card border border-border rounded-xl p-2">
               <QRCodeSVG
                 value="https://whatwrapped.vercel.app"
