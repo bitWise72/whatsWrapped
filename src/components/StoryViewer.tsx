@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NarrativeContext, IntentType, ReportCard, AIGeneratedSlides } from "@/lib/types";
 import { getTemplate } from "@/lib/templates";
 import { ProgressBar } from "@/components/ui/ProgressBar";
+import { SaveButton } from "@/components/SaveButton";
 import { IntroSlide } from "@/components/slides/IntroSlide";
 import { StatSlide } from "@/components/slides/StatSlide";
 import { TimelineSlide } from "@/components/slides/TimelineSlide";
@@ -191,6 +192,9 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
       >
         ✕ Restart
       </motion.button>
+
+      {/* Save button */}
+      <SaveButton slideNumber={currentSlide + 1} />
 
       {/* Slide content */}
       <AnimatePresence mode="wait">
