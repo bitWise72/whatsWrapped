@@ -357,18 +357,37 @@ export function validateChatFile(file: File): Promise<boolean> {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      // Multiple patterns to detect WhatsApp exports
-      const patterns = [
-        /\d{1,2}\/\d{1,2}\/\d{2,4}.*\d{1,2}:\d{2}/,  // Basic date and time
-        /\d{1,2}\.\d{1,2}\.\d{2,4}.*\d{1,2}:\d{2}/,  // European format
-        /\d{4}-\d{2}-\d{2}.*\d{1,2}:\d{2}/,         // ISO format
+      
+      // More robust validation - check for WhatsApp message patterns
+      // These patterns match the actual message format lines from MESSAGE_PATTERNS
+      const messagePatterns = [
+        // Format 1: DD/MM/YYYY, h:mm am/pm - Author: Message
+        /\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*[\u202f\s]*(am|pm)\s*-\s*.+:/im,
+        // Format 2: DD/MM/YYYY, HH:MM - Author: Message (24-hour)
+        /\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*-\s*.+:/im,
+        // Format 3: MM/DD/YYYY, h:mm AM/PM - Author: Message (US)
+        /\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*(AM|PM)\s*-\s*.+:/im,
+        // Format 4: [DD/MM/YYYY, h:mm:ss am/pm] Author: Message
+        /\[\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}(?::\d{2})?\s*(am|pm)?\]\s*.+:/im,
+        // Format 5: DD.MM.YYYY, HH:MM - Author: Message (European)
+        /\d{1,2}\.\d{1,2}\.\d{2,4},\s*\d{1,2}:\d{2}\s*-\s*.+:/im,
+        // Format 6: YYYY-MM-DD, HH:MM - Author: Message (ISO)
+        /\d{4}-\d{2}-\d{2},\s*\d{1,2}:\d{2}\s*-\s*.+:/im,
       ];
-      const hasDateTimePattern = patterns.some(p => p.test(text));
-      const hasDashSeparator = text.includes(" - ");
-      resolve(hasDateTimePattern && hasDashSeparator);
+      
+      // Check if ANY of the message patterns match anywhere in the file
+      // This is more robust than checking first 2KB for loose patterns
+      const hasValidMessageFormat = messagePatterns.some(p => p.test(text));
+      
+      // Also check for common WhatsApp system messages as fallback
+      const hasSystemMessages = /joined|left|created group|added|removed|Messages and calls are end-to-end encrypted/i.test(text);
+      
+      // File is valid if it has either proper message format or system messages
+      resolve(hasValidMessageFormat || hasSystemMessages);
     };
     reader.onerror = () => resolve(false);
-    reader.readAsText(file.slice(0, 2000)); // Check first 2KB for more confidence
+    // Read enough of the file to find messages (first 10KB should be plenty)
+    reader.readAsText(file.slice(0, 10000));
   });
 }
 
