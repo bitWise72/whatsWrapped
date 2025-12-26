@@ -100,17 +100,17 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
 
         {/* Content area with top padding on md+ to reserve space for absolute QR */}
         <div className="md:mt-32">
-          {/* GPA */}
+          {/* GPA - aligned left with padding to match QR */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.5, type: "spring" }}
-            className="text-center mb-8"
+            className="mb-8 md:pr-36"
           >
-            <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
+            <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2 text-left">
               Cumulative GPA
             </p>
-            <div className="text-6xl font-bold text-gradient-accent">
+            <div className="text-6xl font-bold text-gradient-accent text-left">
               {reportCard.gpa}
             </div>
           </motion.div>
@@ -155,32 +155,6 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
         </motion.div>
         </div>
         {/* End of content area with top padding */}
-
-        {/* Action buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.5 }}
-          className="flex justify-center gap-4 mt-8"
-        >
-          <Button
-            variant="outline"
-            size="lg"
-            onClick={handleDownload}
-            className="gap-2"
-          >
-            <Download className="w-4 h-4" />
-            Save
-          </Button>
-          <Button
-            size="lg"
-            onClick={handleShare}
-            className="gap-2 gradient-primary border-none"
-          >
-            <Share2 className="w-4 h-4" />
-            Share
-          </Button>
-        </motion.div>
 
         {/* QR was moved into the report card so exports include it */}
       </div>
