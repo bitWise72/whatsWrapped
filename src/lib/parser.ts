@@ -280,6 +280,13 @@ export function parseWhatsAppChat(rawText: string): ParsedMessage[] {
         continue;
       }
 
+      // Skip messages from years before 2025
+      const messageYear = new Date(timestamp).getFullYear();
+      if (messageYear < 2025) {
+        skippedLines++;
+        continue;
+      }
+
       // Check if it's a system message
       if (isSystemMessage(rest)) {
         currentMessage = {
