@@ -265,7 +265,7 @@ const wholesomeTemplate: Template = {
 // But we need a placeholder for the type system
 const aiPlaceholder: Template = {
   id: "ai" as IntentType,
-  tone: "AI-generated custom content",
+  tone: "Custom intelligent content",
   slides: roastTemplate.slides, // fallback to roast if AI fails
 };
 

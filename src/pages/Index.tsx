@@ -15,7 +15,7 @@ const intents: { id: IntentType; label: string; icon: React.ReactNode; descripti
     id: "ai",
     label: "AI Powered ✨",
     icon: <Sparkles className="w-5 h-5" />,
-    description: "Custom AI-generated content",
+    description: "Custom intelligent content",
     highlighted: true,
   },
   {

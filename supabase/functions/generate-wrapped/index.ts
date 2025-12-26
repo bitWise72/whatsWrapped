@@ -42,10 +42,10 @@ serve(async (req) => {
 
   try {
     const { narrativeContext, chatContext } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+    const API_KEY = Deno.env.get('AI_API_KEY');
     
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    if (!API_KEY) {
+      throw new Error("AI_API_KEY is not configured");
     }
 
     // Build rich context for the AI
@@ -146,10 +146,10 @@ Return ONLY valid JSON.`;
       try {
         console.log(`Trying model: ${model}`);
         
-        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            Authorization: `Bearer ${API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
@@ -167,7 +167,7 @@ Return ONLY valid JSON.`;
             continue;
           }
           if (response.status === 402) {
-            throw new Error("Payment required - please add credits to your Lovable AI workspace");
+            throw new Error("Payment required - please ensure your AI service is properly configured");
           }
           const errorText = await response.text();
           console.error(`Model ${model} error:`, response.status, errorText);
