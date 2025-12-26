@@ -2,7 +2,7 @@
 
 Transform your WhatsApp conversations into beautiful, shareable wrapped stories—just like Spotify Wrapped, but for your chats!
 
-**🚀 [Live Demo](https://whats-wrapped.vercel.app)**
+**🚀 [Live Demo](https://whatwrapped.vercel.app)**
 
 ## Overview
 
@@ -157,7 +157,7 @@ WhatsWrapped analyzes your chat data to extract:
 
 ## 🚀 Deployment
 
-This project is deployed on [Vercel](https://vercel.com) and can be accessed at https://whats-wrapped.vercel.app
+This project is deployed on [Vercel](https://vercel.com) and can be accessed at https://whatwrapped.vercel.app
 
 ### Deploy Your Own Instance
 
