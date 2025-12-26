@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ReportCard } from "@/lib/types";
 import { GradeBadge } from "@/components/ui/GradeBadge";
-import { useRef, forwardRef } from "react";
+import { useRef } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Download, Share2 } from "lucide-react";
@@ -12,8 +12,7 @@ interface ReportCardSlideProps {
   reportCard: ReportCard;
 }
 
-export const ReportCardSlide = forwardRef<HTMLDivElement, ReportCardSlideProps>(
-  ({ reportCard }, ref) => {
+export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
@@ -59,7 +58,7 @@ export const ReportCardSlide = forwardRef<HTMLDivElement, ReportCardSlideProps>(
   };
 
   return (
-    <div ref={ref} className="slide-container relative overflow-hidden">
+    <div className="slide-container relative overflow-hidden">
       {/* Background effect */}
       <motion.div
         className="absolute inset-0 gradient-dark"
@@ -181,7 +180,7 @@ export const ReportCardSlide = forwardRef<HTMLDivElement, ReportCardSlideProps>(
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.7 }}
+                WhatsApp Wrapped
           className="mt-12 flex flex-col items-center gap-4"
         >
           <div className="bg-card border border-border rounded-xl p-4">
@@ -203,8 +202,5 @@ export const ReportCardSlide = forwardRef<HTMLDivElement, ReportCardSlideProps>(
         </motion.div>
       </div>
     </div>
-    );
-  }
-);
-
-ReportCardSlide.displayName = "ReportCardSlide";
+  );
+}

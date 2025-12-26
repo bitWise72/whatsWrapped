@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { GroupStats } from "@/lib/types";
-import { forwardRef } from "react";
 
 interface TimelineSlideProps {
   title: string;
@@ -15,12 +14,11 @@ function formatHour(hour: number): string {
   return `${hour - 12} PM`;
 }
 
-export const TimelineSlide = forwardRef<HTMLDivElement, TimelineSlideProps>(
-  ({ title, text, groupStats }, ref) => {
-    const maxSpike = Math.max(...groupStats.chaosSpikes.map((s) => s.count), 1);
+export function TimelineSlide({ title, text, groupStats }: TimelineSlideProps) {
+  const maxSpike = Math.max(...groupStats.chaosSpikes.map((s) => s.count), 1);
 
   return (
-    <div ref={ref} className="slide-container relative overflow-hidden">
+    <div className="slide-container relative overflow-hidden">
       {/* Chaos gradient background */}
       <motion.div
         className="absolute inset-0 opacity-20"
@@ -107,8 +105,5 @@ export const TimelineSlide = forwardRef<HTMLDivElement, TimelineSlideProps>(
         </motion.div>
       </div>
     </div>
-    );
-  }
-);
-
-TimelineSlide.displayName = "TimelineSlide";
+  );
+}

@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { forwardRef } from "react";
 
 interface RoastSlideProps {
   title: string;
@@ -7,10 +6,9 @@ interface RoastSlideProps {
   emoji?: string;
 }
 
-export const RoastSlide = forwardRef<HTMLDivElement, RoastSlideProps>(
-  ({ title, text, emoji = "" }, ref) => {
-    return (
-      <div ref={ref} className="slide-container relative overflow-hidden">
+export function RoastSlide({ title, text, emoji = "" }: RoastSlideProps) {
+  return (
+    <div className="slide-container relative overflow-hidden">
       {/* Animated flames/emojis in background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {Array.from({ length: 8 }).map((_, i) => (
@@ -81,8 +79,5 @@ export const RoastSlide = forwardRef<HTMLDivElement, RoastSlideProps>(
         </motion.p>
       </div>
     </div>
-      );
-    }
   );
-
-RoastSlide.displayName = "RoastSlide";
+}

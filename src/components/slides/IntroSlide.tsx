@@ -1,15 +1,13 @@
 import { motion } from "framer-motion";
 import { GlitchText } from "@/components/ui/GlitchText";
-import { forwardRef } from "react";
 
 interface IntroSlideProps {
   text: string;
 }
 
-export const IntroSlide = forwardRef<HTMLDivElement, IntroSlideProps>(
-  ({ text }, ref) => {
-    return (
-      <div ref={ref} className="slide-container relative overflow-hidden">
+export function IntroSlide({ text }: IntroSlideProps) {
+  return (
+    <div className="slide-container relative overflow-hidden">
       {/* Animated background grid */}
       <div className="absolute inset-0 opacity-20">
         <motion.div
@@ -98,8 +96,5 @@ export const IntroSlide = forwardRef<HTMLDivElement, IntroSlideProps>(
         </motion.div>
       </div>
     </div>
-    );
-  }
-);
-
-IntroSlide.displayName = "IntroSlide";
+  );
+}

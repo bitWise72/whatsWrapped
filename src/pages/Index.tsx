@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 const intents: { id: IntentType; label: string; icon: React.ReactNode; description: string; highlighted?: boolean }[] = [
   {
     id: "ai",
-    label: "AI Powered",
+    label: "Let AI Surprise Me",
     icon: <Sparkles className="w-5 h-5" />,
     description: "Custom intelligent content",
     highlighted: true,
@@ -362,8 +362,8 @@ export default function Index() {
                       transition={{ duration: 0.3 }}
                       className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg text-sm text-muted-foreground"
                     >
-                      <p className="text-xs font-semibold text-primary mb-1">Data Disclosure</p>
-                      <p>When using AI mode, parsed chat data (messages, timestamps, user names) is sent to the Gemini API for content generation. No raw messages are stored on our servers.</p>
+                          <p className="text-xs font-semibold text-primary mb-1">Data Disclosure</p>
+                          <p>When using the "Let AI Surprise Me" mode, parsed chat data (messages, timestamps, user names) is sent to the Gemini API for content generation. No raw messages are stored on our servers.</p>
                     </motion.div>
                   )}
                 </div>

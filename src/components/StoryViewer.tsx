@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NarrativeContext, IntentType, ReportCard, AIGeneratedSlides } from "@/lib/types";
 import { getTemplate } from "@/lib/templates";
@@ -10,10 +10,6 @@ import { NightOwlSlide } from "@/components/slides/NightOwlSlide";
 import { DramaSlide } from "@/components/slides/DramaSlide";
 import { RoastSlide } from "@/components/slides/RoastSlide";
 import { ReportCardSlide } from "@/components/slides/ReportCardSlide";
-import { toPng } from "html-to-image";
-import { Button } from "@/components/ui/button";
-import { Download, Share2 } from "lucide-react";
-import { toast } from "sonner";
 
 interface StoryViewerProps {
   context: NarrativeContext;
@@ -33,7 +29,6 @@ type SlideType =
 
 export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const slideRef = useRef<HTMLDivElement>(null);
   const template = getTemplate(intent === "ai" ? "roast" : intent); // fallback template for AI
 
   // Generate slides - use AI content if available, otherwise use template
@@ -56,48 +51,6 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
         { type: "roast", text: template.slides.finalRoast(context) },
         { type: "reportcard", reportCard: template.slides.reportCard(context) },
       ];
-
-  const handleDownload = async () => {
-    if (!slideRef.current) return;
-    try {
-      const dataUrl = await toPng(slideRef.current, {
-        quality: 1,
-        pixelRatio: 2,
-        backgroundColor: "#0a0a0a",
-      });
-      const link = document.createElement("a");
-      link.download = `whatsapp-wrapped-slide-${currentSlide + 1}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success("Slide saved!");
-    } catch (err) {
-      toast.error("Failed to save image");
-    }
-  };
-
-  const handleShare = async () => {
-    if (!slideRef.current) return;
-    try {
-      const dataUrl = await toPng(slideRef.current, {
-        quality: 1,
-        pixelRatio: 2,
-        backgroundColor: "#0a0a0a",
-      });
-      const blob = await (await fetch(dataUrl)).blob();
-      const file = new File([blob], `whatsapp-wrapped-slide-${currentSlide + 1}.png`, { type: "image/png" });
-
-      if (navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: "My WhatsApp Wrapped",
-        });
-      } else {
-        handleDownload();
-      }
-    } catch (err) {
-      toast.error("Failed to share");
-    }
-  };
 
   const goToNext = useCallback(() => {
     if (currentSlide < slides.length - 1) {
@@ -152,11 +105,10 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
   const renderSlide = (slide: SlideType) => {
     switch (slide.type) {
       case "intro":
-        return <IntroSlide text={slide.text} ref={slideRef} />;
+        return <IntroSlide text={slide.text} />;
       case "yapper":
         return (
           <StatSlide
-            ref={slideRef}
             title="The Yapper"
             text={slide.text}
             stat={context.topYapper.split(" ")[0]}
@@ -170,7 +122,6 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
       case "timeline":
         return (
           <TimelineSlide
-            ref={slideRef}
             title="Peak Chaos"
             text={slide.text}
             groupStats={context.groupStats}
@@ -179,7 +130,6 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
       case "nightowl":
         return (
           <NightOwlSlide
-            ref={slideRef}
             title="Night Owls"
             text={slide.text}
             nightOwls={context.nightOwls}
@@ -188,7 +138,6 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
       case "drama":
         return (
           <DramaSlide
-            ref={slideRef}
             title="Drama Detector"
             text={slide.text}
             dramaCount={context.dramaCount}
@@ -197,14 +146,13 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
       case "roast":
         return (
           <RoastSlide
-            ref={slideRef}
             title="Final Verdict"
             text={slide.text}
             emoji={intent === "ai" ? "" : intent === "wholesome" ? "" : intent === "corporate" ? "" : ""}
           />
         );
       case "reportcard":
-        return <ReportCardSlide ref={slideRef} reportCard={slide.reportCard} />;
+        return <ReportCardSlide reportCard={slide.reportCard} />;
       default:
         return null;
     }
@@ -230,38 +178,6 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
         <span className="md:hidden">Swipe or tap</span>
       </motion.div>
 
-      {/* Save/Share buttons */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="fixed top-6 left-6 z-50 flex gap-2"
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDownload();
-          }}
-          className="gap-2"
-        >
-          <Download className="w-4 h-4" />
-          <span className="hidden sm:inline">Save</span>
-        </Button>
-        <Button
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleShare();
-          }}
-          className="gap-2 gradient-primary border-none"
-        >
-          <Share2 className="w-4 h-4" />
-          <span className="hidden sm:inline">Share</span>
-        </Button>
-      </motion.div>
-
       {/* Restart button */}
       <motion.button
         initial={{ opacity: 0 }}
@@ -279,7 +195,6 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
       {/* Slide content */}
       <AnimatePresence mode="wait">
         <motion.div
-          ref={slideRef}
           key={currentSlide}
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}

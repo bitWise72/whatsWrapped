@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { forwardRef } from "react";
 
 interface DramaSlideProps {
   title: string;
@@ -7,12 +6,11 @@ interface DramaSlideProps {
   dramaCount: number;
 }
 
-export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
-  ({ title, text, dramaCount }, ref) => {
-    const intensity = Math.min(dramaCount / 100, 1);
+export function DramaSlide({ title, text, dramaCount }: DramaSlideProps) {
+  const intensity = Math.min(dramaCount / 100, 1);
 
-    return (
-      <div ref={ref} className="slide-container relative overflow-hidden">
+  return (
+    <div className="slide-container relative overflow-hidden">
       {/* Dramatic background */}
       <motion.div
         className="absolute inset-0"
@@ -67,7 +65,7 @@ export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="text-sm font-mono uppercase tracking-widest text-muted-foreground mb-4"
+          className="text-sm font-mono uppercase tracking-widest text-white mb-4"
         >
           {title}
         </motion.h2>
@@ -77,7 +75,7 @@ export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.4, type: "spring" }}
-          className="text-7xl md:text-8xl font-bold mb-4 text-gradient-accent"
+          className="text-7xl md:text-8xl font-bold mb-4 text-white"
         >
           {dramaCount}
         </motion.div>
@@ -86,7 +84,7 @@ export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="text-lg text-muted-foreground mb-8"
+          className="text-lg text-white/80 mb-8"
         >
           dramatic moments detected
         </motion.p>
@@ -96,7 +94,7 @@ export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.8 }}
-          className="text-2xl md:text-3xl font-semibold leading-relaxed"
+          className="text-2xl md:text-3xl font-semibold leading-relaxed text-white"
         >
           {text}
         </motion.p>
@@ -120,8 +118,5 @@ export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
         </motion.div>
       </div>
     </div>
-      );
-    }
   );
-
-DramaSlide.displayName = "DramaSlide";
+}
