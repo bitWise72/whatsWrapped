@@ -73,7 +73,7 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
           initial={{ y: 50, opacity: 0, rotateX: 10 }}
           animate={{ y: 0, opacity: 1, rotateX: 0 }}
           transition={{ duration: 0.8 }}
-          className="bg-card border border-border rounded-2xl p-8 shadow-2xl"
+          className="bg-card border border-border rounded-2xl p-8 shadow-2xl relative"
           style={{ aspectRatio: "9/16" }}
         >
           {/* Header */}
@@ -144,10 +144,25 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
             transition={{ delay: 1.4 }}
             className="mt-6 text-center"
           >
-            <p className="text-xs text-muted-foreground">
-              WhatsApp Wrapped 2024
-            </p>
+            <p className="text-xs text-muted-foreground">WhatsApp Wrapped</p>
           </motion.div>
+
+          {/* QR overlay inside the card so exports include it */}
+          <div className="absolute right-4 top-6 z-20 flex flex-col items-center gap-2">
+            <div className="bg-card border border-border rounded-xl p-2">
+              <QRCodeSVG
+                value="https://whatwrapped.vercel.app"
+                size={120}
+                level="H"
+                includeMargin={false}
+                bgColor="#0a0a0a"
+                fgColor="#ffffff"
+              />
+            </div>
+            <div className="text-center max-w-xs">
+              <p className="text-xs font-medium">Make your own WhatsApp Wrapped</p>
+            </div>
+          </div>
         </motion.div>
 
         {/* Action buttons */}
@@ -176,30 +191,7 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
           </Button>
         </motion.div>
 
-        {/* QR Code Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-                WhatsApp Wrapped
-          className="mt-12 flex flex-col items-center gap-4"
-        >
-          <div className="bg-card border border-border rounded-xl p-4">
-            <QRCodeSVG
-              value="https://whatwrapped.vercel.app"
-              size={150}
-              level="H"
-              includeMargin={true}
-              bgColor="#0a0a0a"
-              fgColor="#ffffff"
-            />
-          </div>
-          <div className="text-center max-w-xs">
-            <p className="text-sm font-medium">Make your own WhatsApp Wrapped</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Scan to generate your wrapped story
-            </p>
-          </div>
-        </motion.div>
+        {/* QR was moved into the report card so exports include it */}
       </div>
     </div>
   );

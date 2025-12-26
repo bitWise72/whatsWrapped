@@ -52,6 +52,7 @@ export default function Index() {
     setIsLoading(true);
 
     try {
+      console.info(`Processing file: ${file.name}, size=${file.size} bytes`);
       const isValid = await validateChatFile(file);
       if (!isValid) {
         toast.error("This doesn't look like a WhatsApp export file");
@@ -61,6 +62,8 @@ export default function Index() {
 
       const text = await file.text();
       const messages = parseWhatsAppChat(text);
+
+      console.info(`Parsed messages: ${messages.length}`);
 
       if (messages.length < 10) {
         toast.error("Not enough messages found. Make sure this is a valid WhatsApp export.");
@@ -120,8 +123,19 @@ export default function Index() {
     if (selectedIntent === "ai") {
       setIsGeneratingAI(true);
       try {
+        // Limit messages sent to the edge function to avoid payload/timeouts
+        const MAX_MESSAGES_FOR_AI = 1000;
+        let payloadChatContext = chatContext;
+        if (chatContext && Array.isArray((chatContext as any).messages)) {
+          const msgs = (chatContext as any).messages as any[];
+          if (msgs.length > MAX_MESSAGES_FOR_AI) {
+            payloadChatContext = { ...chatContext, messages: msgs.slice(-MAX_MESSAGES_FOR_AI) } as any;
+            toast.info(`Sending last ${MAX_MESSAGES_FOR_AI} messages to AI (truncated).`);
+          }
+        }
+
         const { data, error } = await supabase.functions.invoke('generate-wrapped', {
-          body: { narrativeContext, chatContext },
+          body: { narrativeContext, chatContext: payloadChatContext },
         });
 
         if (error) {
@@ -300,7 +314,7 @@ export default function Index() {
                       <p className="text-sm text-muted-foreground">people</p>
                     </div>
                     <div>
-                      <p className="text-3xl font-bold text-accent-foreground">
+                      <p className="text-3xl font-bold text-white">
                         {narrativeContext.dramaCount}
                       </p>
                       <p className="text-sm text-muted-foreground">drama moments</p>
