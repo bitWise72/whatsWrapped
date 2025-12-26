@@ -2,22 +2,35 @@
 import { ParsedMessage } from "./types";
 
 // Multiple regex patterns to handle different WhatsApp export formats globally
-const MESSAGE_PATTERNS = [
+// ANDROID PATTERNS (no brackets, uses " - " separator)
+const ANDROID_MESSAGE_PATTERNS = [
   // Format 1: DD/MM/YYYY, h:mm am/pm - Author: Message (with invisible unicode \u202f)
   /^(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2})\s*[\u202f\s]*(am|pm)\s*-\s*(.+)$/i,
   // Format 2: DD/MM/YYYY, HH:MM - Author: Message (24-hour format, no am/pm)
   /^(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2})\s*-\s*(.+)$/i,
   // Format 3: MM/DD/YYYY, h:mm AM/PM - Author: Message (US format)
   /^(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2})\s*[\u202f\s]*(AM|PM)\s*-\s*(.+)$/,
-  // Format 4: [DD/MM/YYYY, h:mm:ss am/pm] Author: Message (with brackets and seconds)
-  /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2})(?::\d{2})?\s*[\u202f\s]*(am|pm)?\]\s*(.+)$/i,
-  // Format 5: DD.MM.YYYY, HH:MM - Author: Message (European with dots)
+  // Format 4: DD.MM.YYYY, HH:MM - Author: Message (European with dots)
   /^(\d{1,2}\.\d{1,2}\.\d{2,4}),\s*(\d{1,2}:\d{2})\s*-\s*(.+)$/i,
-  // Format 6: YYYY-MM-DD, HH:MM - Author: Message (ISO-like format)
+  // Format 5: YYYY-MM-DD, HH:MM - Author: Message (ISO-like format)
   /^(\d{4}-\d{2}-\d{2}),\s*(\d{1,2}:\d{2})\s*-\s*(.+)$/i,
-  // Format 7: DD/MM/YY, h:mm am/pm - (2-digit year)
+  // Format 6: DD/MM/YY, h:mm am/pm - (2-digit year)
   /^(\d{1,2}\/\d{1,2}\/\d{2}),\s*(\d{1,2}:\d{2})\s*[\u202f\s]*(am|pm)\s*-\s*(.+)$/i,
 ];
+
+// iOS PATTERNS (uses brackets, no " - " separator after bracket)
+const IOS_MESSAGE_PATTERNS = [
+  // Format 1: [M/D/YY, HH:MM:SS AM/PM] Author: Message (iOS standard format with seconds)
+  /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM|am|pm))\]\s*(.+)$/i,
+  // Format 2: [M/D/YY, HH:MM AM/PM] Author: Message (iOS without seconds)
+  /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2}\s*(?:AM|PM|am|pm))\]\s*(.+)$/i,
+  // Format 3: [DD/MM/YYYY, HH:MM:SS] Author: Message (24-hour iOS format)
+  /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2}:\d{2})\]\s*(.+)$/i,
+  // Format 4: [DD/MM/YYYY, HH:MM] Author: Message (24-hour iOS without seconds)
+  /^\[(\d{1,2}\/\d{1,2}\/\d{2,4}),\s*(\d{1,2}:\d{2})\]\s*(.+)$/i,
+];
+
+const MESSAGE_PATTERNS = [...ANDROID_MESSAGE_PATTERNS, ...IOS_MESSAGE_PATTERNS];
 
 // System message patterns (no colon after the dash content)
 const SYSTEM_PATTERNS = [
@@ -77,21 +90,21 @@ function parseDateString(dateStr: string): ParsedDateResult {
     month = p2;
     day = p3;
   } 
-  // Standard DD/MM/YYYY or MM/DD/YYYY
+  // Standard DD/MM/YYYY or MM/DD/YYYY or iOS M/D/YY
   else {
-    // If first part > 12, it must be day (DD/MM/YYYY)
+    // If first part > 12, it must be day (DD/MM/YYYY or DD/MM/YY)
     if (p1 > 12) {
       day = p1;
       month = p2;
       year = p3;
     }
-    // If second part > 12, it must be day (MM/DD/YYYY US format)
+    // If second part > 12, it must be day (MM/DD/YYYY or M/DD/YY - iOS style)
     else if (p2 > 12) {
       month = p1;
       day = p2;
       year = p3;
     }
-    // Default to DD/MM/YYYY (most common for WhatsApp)
+    // Default to DD/MM/YYYY (most common for WhatsApp Android)
     else {
       day = p1;
       month = p2;
@@ -99,8 +112,9 @@ function parseDateString(dateStr: string): ParsedDateResult {
     }
   }
 
-  // Handle 2-digit years
+  // Handle 2-digit years - iOS typically uses 2-digit years
   if (year < 100) {
+    // If year >= 50, assume 19xx, otherwise 20xx (e.g., 24 -> 2024, 95 -> 1995)
     year = year > 50 ? 1900 + year : 2000 + year;
   }
 
@@ -114,9 +128,27 @@ function parseDateString(dateStr: string): ParsedDateResult {
 }
 
 function parseTimeString(timeStr: string, ampm?: string): { hours: number; minutes: number; isValid: boolean } {
-  const [hoursStr, minutesStr] = timeStr.split(":").map(s => s.trim());
-  let hours = parseInt(hoursStr, 10);
-  const minutes = parseInt(minutesStr, 10);
+  // iOS format may include seconds and AM/PM in the time string itself
+  // e.g., "10:02:11 PM" or "HH:MM:SS"
+  // Extract AM/PM from timeStr if it's there
+  let extractedAmpm = ampm;
+  let cleanTimeStr = timeStr.trim();
+  
+  // Check if AM/PM is embedded in the time string (iOS format)
+  const ampMatch = cleanTimeStr.match(/\s*(AM|PM|am|pm)$/i);
+  if (ampMatch) {
+    extractedAmpm = ampMatch[1];
+    cleanTimeStr = cleanTimeStr.replace(/\s*(AM|PM|am|pm)$/i, '').trim();
+  }
+  
+  // Split by colon and get hours and minutes (ignore seconds if present)
+  const parts = cleanTimeStr.split(":").map(s => s.trim());
+  if (parts.length < 2) {
+    return { hours: 0, minutes: 0, isValid: false };
+  }
+  
+  let hours = parseInt(parts[0], 10);
+  const minutes = parseInt(parts[1], 10);
 
   // Validate basic ranges
   if (isNaN(hours) || isNaN(minutes) || minutes < 0 || minutes > 59) {
@@ -124,9 +156,9 @@ function parseTimeString(timeStr: string, ampm?: string): { hours: number; minut
   }
 
   // Handle 12-hour format with am/pm
-  if (ampm) {
-    const isPM = ampm.toLowerCase() === "pm";
-    const isAM = ampm.toLowerCase() === "am";
+  if (extractedAmpm) {
+    const isPM = extractedAmpm.toLowerCase() === "pm";
+    const isAM = extractedAmpm.toLowerCase() === "am";
     
     if (hours < 1 || hours > 12) {
       return { hours: 0, minutes: 0, isValid: false };
@@ -257,19 +289,30 @@ export function parseWhatsAppChat(rawText: string): ParsedMessage[] {
 
       let dateStr: string, timeStr: string, ampm: string | undefined, rest: string;
 
-      if (hasAmPm && match.length >= 5) {
-        // Format with am/pm: [date, time, ampm, rest]
-        [, dateStr, timeStr, ampm, rest] = match;
-      } else if (match.length === 4) {
-        // Format without am/pm: [date, time, rest] - 24h format
+      // Extract groups intelligently based on pattern type
+      // iOS patterns have 3 groups: [date, time, rest]
+      // Android patterns may have 3 or 4 groups depending on AM/PM
+      
+      if (match.length === 4) {
+        // Standard 3 groups: date, time, rest (most iOS and some Android)
         [, dateStr, timeStr, rest] = match;
         ampm = undefined;
+      } else if (match.length === 5) {
+        // 4 groups: date, time, ampm/content, content (Android with AM/PM)
+        // Need to detect if group 3 is AM/PM or the content
+        if (/^(am|pm)$/i.test(match[3])) {
+          [, dateStr, timeStr, ampm, rest] = match;
+        } else {
+          // Group 3 is actually the content, no separate AM/PM
+          [, dateStr, timeStr, rest] = match.slice(0, 4);
+          ampm = undefined;
+        }
       } else {
-        // Unexpected format, try to handle gracefully
+        // Fallback for unexpected patterns
         dateStr = match[1];
         timeStr = match[2];
-        ampm = match[3] && /^(am|pm)$/i.test(match[3]) ? match[3] : undefined;
-        rest = match[ampm ? 4 : 3] || match[match.length - 1];
+        rest = match[match.length - 1];
+        ampm = undefined;
       }
 
       const timestamp = parseTimestamp(dateStr, timeStr, ampm);
@@ -358,26 +401,23 @@ export function validateChatFile(file: File): Promise<boolean> {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       
-      // More robust validation - check for WhatsApp message patterns
-      // These patterns match the actual message format lines from MESSAGE_PATTERNS
-      const messagePatterns = [
-        // Format 1: DD/MM/YYYY, h:mm am/pm - Author: Message
+      // Combine all patterns for validation
+      const allValidationPatterns = [
+        // Android patterns
         /\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*[\u202f\s]*(am|pm)\s*-\s*.+:/im,
-        // Format 2: DD/MM/YYYY, HH:MM - Author: Message (24-hour)
         /\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*-\s*.+:/im,
-        // Format 3: MM/DD/YYYY, h:mm AM/PM - Author: Message (US)
         /\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*(AM|PM)\s*-\s*.+:/im,
-        // Format 4: [DD/MM/YYYY, h:mm:ss am/pm] Author: Message
-        /\[\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}(?::\d{2})?\s*(am|pm)?\]\s*.+:/im,
-        // Format 5: DD.MM.YYYY, HH:MM - Author: Message (European)
         /\d{1,2}\.\d{1,2}\.\d{2,4},\s*\d{1,2}:\d{2}\s*-\s*.+:/im,
-        // Format 6: YYYY-MM-DD, HH:MM - Author: Message (ISO)
         /\d{4}-\d{2}-\d{2},\s*\d{1,2}:\d{2}\s*-\s*.+:/im,
+        // iOS patterns - look for brackets
+        /\[\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}:\d{2}\s*(?:AM|PM|am|pm)\]\s*.+:/im,
+        /\[\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\s*(?:AM|PM|am|pm)\]\s*.+:/im,
+        /\[\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}:\d{2}\]\s*.+:/im,
+        /\[\d{1,2}\/\d{1,2}\/\d{2,4},\s*\d{1,2}:\d{2}\]\s*.+:/im,
       ];
       
-      // Check if ANY of the message patterns match anywhere in the file
-      // This is more robust than checking first 2KB for loose patterns
-      const hasValidMessageFormat = messagePatterns.some(p => p.test(text));
+      // Check if ANY of the patterns match anywhere in the file
+      const hasValidMessageFormat = allValidationPatterns.some(p => p.test(text));
       
       // Also check for common WhatsApp system messages as fallback
       const hasSystemMessages = /joined|left|created group|added|removed|Messages and calls are end-to-end encrypted/i.test(text);
