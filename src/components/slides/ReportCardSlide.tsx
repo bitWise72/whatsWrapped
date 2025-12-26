@@ -98,23 +98,25 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
           </div>
         </div>
 
-        {/* GPA */}
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
-          className="text-center mb-8"
-        >
-          <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
-            Cumulative GPA
-          </p>
-          <div className="text-6xl font-bold text-gradient-accent">
-            {reportCard.gpa}
-          </div>
-        </motion.div>
+        {/* Content area with top padding on md+ to reserve space for absolute QR */}
+        <div className="md:mt-32">
+          {/* GPA */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.5, type: "spring" }}
+            className="text-center mb-8"
+          >
+            <p className="text-sm text-muted-foreground uppercase tracking-wider mb-2">
+              Cumulative GPA
+            </p>
+            <div className="text-6xl font-bold text-gradient-accent">
+              {reportCard.gpa}
+            </div>
+          </motion.div>
 
-        {/* Grades */}
-        <div className="space-y-3 mb-8">
+          {/* Grades */}
+          <div className="space-y-3 mb-8">
           {reportCard.grades.map((item, i) => (
             <motion.div
               key={item.subject}
@@ -151,6 +153,8 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
         >
           <p className="text-xs text-muted-foreground">WhatsApp Wrapped</p>
         </motion.div>
+        </div>
+        {/* End of content area with top padding */}
 
         {/* Action buttons */}
         <motion.div
