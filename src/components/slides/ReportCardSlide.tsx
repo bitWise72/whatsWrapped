@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { ReportCard } from "@/lib/types";
 import { GradeBadge } from "@/components/ui/GradeBadge";
-import { useRef } from "react";
+import { useRef, forwardRef } from "react";
 import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Download, Share2 } from "lucide-react";
@@ -12,7 +12,8 @@ interface ReportCardSlideProps {
   reportCard: ReportCard;
 }
 
-export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
+export const ReportCardSlide = forwardRef<HTMLDivElement, ReportCardSlideProps>(
+  ({ reportCard }, ref) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = async () => {
@@ -58,7 +59,7 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
   };
 
   return (
-    <div className="slide-container relative overflow-hidden">
+    <div ref={ref} className="slide-container relative overflow-hidden">
       {/* Background effect */}
       <motion.div
         className="absolute inset-0 gradient-dark"
@@ -202,5 +203,8 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
         </motion.div>
       </div>
     </div>
-  );
-}
+    );
+  }
+);
+
+ReportCardSlide.displayName = "ReportCardSlide";

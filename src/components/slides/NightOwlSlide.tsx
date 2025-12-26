@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 
 interface NightOwlSlideProps {
   title: string;
@@ -6,9 +7,10 @@ interface NightOwlSlideProps {
   nightOwls: string[];
 }
 
-export function NightOwlSlide({ title, text, nightOwls }: NightOwlSlideProps) {
-  return (
-    <div className="slide-container relative overflow-hidden">
+export const NightOwlSlide = forwardRef<HTMLDivElement, NightOwlSlideProps>(
+  ({ title, text, nightOwls }, ref) => {
+    return (
+      <div ref={ref} className="slide-container relative overflow-hidden">
       {/* Starry background */}
       <div className="absolute inset-0">
         {Array.from({ length: 50 }).map((_, i) => (
@@ -99,5 +101,8 @@ export function NightOwlSlide({ title, text, nightOwls }: NightOwlSlideProps) {
         )}
       </div>
     </div>
+      );
+    }
   );
-}
+
+NightOwlSlide.displayName = "NightOwlSlide";

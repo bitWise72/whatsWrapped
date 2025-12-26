@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { forwardRef } from "react";
 
 interface DramaSlideProps {
   title: string;
@@ -6,11 +7,12 @@ interface DramaSlideProps {
   dramaCount: number;
 }
 
-export function DramaSlide({ title, text, dramaCount }: DramaSlideProps) {
-  const intensity = Math.min(dramaCount / 100, 1);
+export const DramaSlide = forwardRef<HTMLDivElement, DramaSlideProps>(
+  ({ title, text, dramaCount }, ref) => {
+    const intensity = Math.min(dramaCount / 100, 1);
 
-  return (
-    <div className="slide-container relative overflow-hidden">
+    return (
+      <div ref={ref} className="slide-container relative overflow-hidden">
       {/* Dramatic background */}
       <motion.div
         className="absolute inset-0"
@@ -118,5 +120,8 @@ export function DramaSlide({ title, text, dramaCount }: DramaSlideProps) {
         </motion.div>
       </div>
     </div>
+      );
+    }
   );
-}
+
+DramaSlide.displayName = "DramaSlide";

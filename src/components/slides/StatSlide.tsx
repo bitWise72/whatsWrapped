@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { UserStats } from "@/lib/types";
+import { forwardRef } from "react";
 
 interface StatSlideProps {
   title: string;
@@ -22,16 +23,20 @@ const bgMap = {
   accent: "gradient-accent",
 };
 
-export function StatSlide({
-  title,
-  text,
-  stat,
-  statLabel,
-  color = "primary",
-  userStats,
-}: StatSlideProps) {
+export const StatSlide = forwardRef<HTMLDivElement, StatSlideProps>(
+  (
+    {
+      title,
+      text,
+      stat,
+      statLabel,
+      color = "primary",
+      userStats,
+    },
+    ref
+  ) => {
   return (
-    <div className="slide-container relative overflow-hidden">
+    <div ref={ref} className="slide-container relative overflow-hidden">
       {/* Background accent */}
       <motion.div
         className={`absolute w-96 h-96 rounded-full ${bgMap[color]} opacity-10 blur-3xl`}
@@ -108,5 +113,8 @@ export function StatSlide({
         )}
       </div>
     </div>
-  );
-}
+    );
+  }
+);
+
+StatSlide.displayName = "StatSlide";
