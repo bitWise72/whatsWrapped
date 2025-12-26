@@ -354,6 +354,18 @@ export default function Index() {
                       </motion.button>
                     ))}
                   </div>
+
+                  {selectedIntent === "ai" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="mt-4 p-3 bg-primary/10 border border-primary/30 rounded-lg text-sm text-muted-foreground"
+                    >
+                      <p className="text-xs font-semibold text-primary mb-1">Data Disclosure</p>
+                      <p>When using AI mode, parsed chat data (messages, timestamps, user names) is sent to the Gemini API for content generation. No raw messages are stored on our servers.</p>
+                    </motion.div>
+                  )}
                 </div>
 
                 <Button

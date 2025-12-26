@@ -6,6 +6,7 @@ import { toPng } from "html-to-image";
 import { Button } from "@/components/ui/button";
 import { Download, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 
 interface ReportCardSlideProps {
   reportCard: ReportCard;
@@ -173,6 +174,31 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
             <Share2 className="w-4 h-4" />
             Share
           </Button>
+        </motion.div>
+
+        {/* QR Code Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.7 }}
+          className="mt-12 flex flex-col items-center gap-4"
+        >
+          <div className="bg-card border border-border rounded-xl p-4">
+            <QRCodeSVG
+              value="https://whatwrapped.vercel.app"
+              size={150}
+              level="H"
+              includeMargin={true}
+              bgColor="#0a0a0a"
+              fgColor="#ffffff"
+            />
+          </div>
+          <div className="text-center max-w-xs">
+            <p className="text-sm font-medium">Make your own WhatsApp Wrapped</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Scan to generate your wrapped story
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>
