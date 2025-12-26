@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { parseWhatsAppChat, validateChatFile, extractChatContext } from "@/lib/parser";
 import { generateNarrativeContext } from "@/lib/analytics";
 import { StoryViewer } from "@/components/StoryViewer";
+import { Footer } from "@/components/Footer";
 import { IntentType, NarrativeContext, AIGeneratedSlides } from "@/lib/types";
 import { toast } from "sonner";
 import { GlitchText } from "@/components/ui/GlitchText";
@@ -337,6 +338,7 @@ export default function Index() {
                       <p className="text-sm text-muted-foreground">drama moments</p>
                     </div>
                   </div>
+                  <Footer />
                 </div>
 
                 <div>
