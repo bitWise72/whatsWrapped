@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 const intents: { id: IntentType; label: string; icon: React.ReactNode; description: string; highlighted?: boolean }[] = [
   {
     id: "ai",
-    label: "AI Powered ✨",
+    label: "AI Powered",
     icon: <Sparkles className="w-5 h-5" />,
     description: "Custom intelligent content",
     highlighted: true,
@@ -270,7 +270,7 @@ export default function Index() {
                   transition={{ delay: 0.5 }}
                   className="mt-6 text-xs text-muted-foreground"
                 >
-                  🔒 Your chat stays on your device. No data is uploaded anywhere.
+                  Your chat stays on your device. No data is uploaded anywhere.
                 </motion.p>
               </motion.div>
             ) : (
@@ -372,7 +372,7 @@ export default function Index() {
                       AI is cooking...
                     </span>
                   ) : (
-                    "Generate My Wrapped ✨"
+                    "Generate My Wrapped"
                   )}
                 </Button>
 

@@ -148,7 +148,7 @@ export function StoryViewer({ context, intent, onRestart, aiSlides }: StoryViewe
           <RoastSlide
             title="Final Verdict"
             text={slide.text}
-            emoji={intent === "ai" ? "🤖" : intent === "wholesome" ? "💚" : intent === "corporate" ? "📊" : "🔥"}
+            emoji={intent === "ai" ? "" : intent === "wholesome" ? "" : intent === "corporate" ? "" : ""}
           />
         );
       case "reportcard":

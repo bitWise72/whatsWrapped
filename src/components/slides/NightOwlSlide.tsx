@@ -55,7 +55,6 @@ export function NightOwlSlide({ title, text, nightOwls }: NightOwlSlideProps) {
           transition={{ type: "spring", stiffness: 200, damping: 15 }}
           className="text-8xl mb-8"
         >
-          🌙
         </motion.div>
 
         <motion.h2

@@ -83,7 +83,6 @@ export function ReportCardSlide({ reportCard }: ReportCardSlideProps) {
               transition={{ delay: 0.3 }}
               className="text-4xl mb-4"
             >
-              📋
             </motion.div>
             <h2 className="text-xl font-bold text-gradient-primary">
               {reportCard.groupName}

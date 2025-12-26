@@ -210,7 +210,7 @@ const wholesomeTemplate: Template = {
 
     yapper: (ctx) => {
       const yapper = ctx.userStats.find((u) => u.name === ctx.topYapper);
-      const emoji = yapper?.topEmojis[0] || "💬";
+      const emoji = yapper?.topEmojis[0] || "";
       return `${ctx.topYapper} kept the conversation alive with their energy and ${emoji}. Every group needs their spark!`;
     },
 
@@ -218,14 +218,14 @@ const wholesomeTemplate: Template = {
       const chaosCount = ctx.groupStats.chaosSpikes[0]?.count || 0;
       const formattedDate = formatDate(ctx.chaosDay);
       if (formattedDate === "Unknown Date" || chaosCount === 0) {
-        return `Every day with you all is special. The joy is spread evenly throughout! ✨`;
+        return `Every day with you all is special. The joy is spread evenly throughout!`;
       }
-      return `Your biggest day was ${formattedDate} with ${chaosCount} messages. Must have been something special! ✨`;
+      return `Your biggest day was ${formattedDate} with ${chaosCount} messages. Must have been something special!`;
     },
 
     nightOwl: (ctx) => {
       if (ctx.nightOwls.length === 0) {
-        return "Everyone's getting their beauty sleep. Self-care is important! 🌙";
+        return "Everyone's getting their beauty sleep. Self-care is important!";
       }
       const owlList = ctx.nightOwls.join(" and ");
       return `${owlList} — always there for late-night chats when someone needs to talk. True friends. 🦉`;
@@ -233,7 +233,7 @@ const wholesomeTemplate: Template = {
 
     drama: (ctx) => {
       if (ctx.dramaCount < 10) {
-        return "This group radiates calm energy. You've created a safe space for each other. 💕";
+        return "This group radiates calm energy. You've created a safe space for each other.";
       }
       return `${ctx.dramaCount} passionate messages detected. You care deeply about things — and each other!`;
     },

@@ -6,7 +6,7 @@ interface RoastSlideProps {
   emoji?: string;
 }
 
-export function RoastSlide({ title, text, emoji = "🔥" }: RoastSlideProps) {
+export function RoastSlide({ title, text, emoji = "" }: RoastSlideProps) {
   return (
     <div className="slide-container relative overflow-hidden">
       {/* Animated flames/emojis in background */}

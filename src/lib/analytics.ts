@@ -246,7 +246,7 @@ export function generateNarrativeContext(
     return acc;
   }, {} as Record<string, number>);
   const emojiSignature =
-    Object.entries(emojiCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "💬";
+    Object.entries(emojiCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "";
 
   return {
     topYapper,
