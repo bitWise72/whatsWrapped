@@ -71,12 +71,29 @@ export default function Index() {
         return;
       }
 
-      const context = generateNarrativeContext(messages);
-      const extractedChatContext = extractChatContext(messages);
+      // If the transcript is huge it can cause stack overflows or performance issues
+      // when running analytics. Truncate to the last N messages for analysis while
+      // keeping the original count for reporting.
+      const MAX_MESSAGES_TO_ANALYZE = 100000;
+      let messagesForAnalysis = messages;
+      let wasTruncated = false;
+      if (messages.length > MAX_MESSAGES_TO_ANALYZE) {
+        messagesForAnalysis = messages.slice(-MAX_MESSAGES_TO_ANALYZE);
+        wasTruncated = true;
+        toast.info(`Transcript too large — analyzing last ${MAX_MESSAGES_TO_ANALYZE.toLocaleString()} messages (truncated from ${messages.length.toLocaleString()}).`);
+        console.warn(`Truncated messages for analysis: original=${messages.length}, using=${messagesForAnalysis.length}`);
+      }
+
+      const context = generateNarrativeContext(messagesForAnalysis);
+      const extractedChatContext = extractChatContext(messagesForAnalysis);
+      // If we truncated, reflect the real total message count in the context where appropriate
+      if (wasTruncated) {
+        context.totalMessages = messages.length;
+      }
       setNarrativeContext(context);
       setChatContext(extractedChatContext);
 
-      toast.success(`Analyzed ${messages.length.toLocaleString()} messages from ${context.participantCount} participants!`);
+      toast.success(`Analyzed ${messagesForAnalysis.length.toLocaleString()} messages from ${context.participantCount} participants!` + (wasTruncated ? ` (showing last ${MAX_MESSAGES_TO_ANALYZE.toLocaleString()} of ${messages.length.toLocaleString()})` : ""));
     } catch (error) {
       console.error("Error processing file:", error);
       toast.error("Failed to process the chat file");
